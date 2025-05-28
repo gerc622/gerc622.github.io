@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公主殿下的秘密花园 - 登录</title>
+    <title>哇！你来啦 - 登录</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f9f0ff;
+            background-color: #e6f2ff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -35,7 +35,7 @@
             box-sizing: border-box;
         }
         button {
-            background-color: #ff85a2;
+            background-color:#4a90e2;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -45,7 +45,7 @@
             font-size: 16px;
         }
         button:hover {
-            background-color: #ff6b8b;
+            background-color: #4a90e2;
         }
         .error {
             color: red;
@@ -56,12 +56,12 @@
 </head>
 <body>
     <div class="login-box">
-        <h1> 公主殿下的秘密花园</h1>
+        <h1> 哇！你来啦</h1>
         <p>请输入用户名和密码：</p>
         
         <input type="text" id="username" placeholder="用户名" required>
         <input type="password" id="password" placeholder="密码" required>
-        <button onclick="checkLogin()">进入秘密花园</button>
+        <button onclick="checkLogin()">哇！你来啦</button>
         
         <p id="error" class="error"></p>
     </div>
@@ -72,11 +72,11 @@
             const password = document.getElementById("password").value;
             const errorElement = document.getElementById("error");
 
-            if (username === "Gerc" && password === "123gerc") {
+            if (username === "gerc" && password === "123gerc，。") {
                 // 登录成功，跳转到主页面（如 home.html）
                 window.location.href = "home.html";
             } else {
-                errorElement.textContent = " 用户名或密码错误！";
+                errorElement.textContent = "公主殿下再试一次吧";
             }
         }
     </script>
