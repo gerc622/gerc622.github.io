@@ -1,4 +1,234 @@
 <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘花园</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e6f7ff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .left-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.5s ease;
+        }
+        
+        .image-container {
+            width: 80%;
+            height: 300px;
+            margin-bottom: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.5s ease;
+        }
+        
+        .button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 200px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background-color: #3a7bc8;
+            transform: scale(1.05);
+        }
+        
+        .login-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 100;
+            width: 300px;
+        }
+        
+        .login-container h2 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .login-button:hover {
+            background-color: #3a7bc8;
+        }
+        
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .question-mark {
+            position: absolute;
+            font-size: 40px;
+            color: #ff85a2;
+            animation: float 3s infinite ease-in-out;
+            display: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        .white-bg {
+            background-color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <div class="image-container" id="left-image" style="background-image: url('https://placeholder.pics/svg/300x200/DEDEDE/555555/第一张图片'); display: none;"></div>
+        </div>
+        
+        <div class="right-section">
+            <div class="image-container" id="right-image" style="background-image: url('https://placeholder.pics/svg/300x200/DEDEDE/555555/第二张图片')"></div>
+            <button class="button" id="button1">是呀是呀</button>
+            <button class="button" id="button2">咦？这是哪</button>
+        </div>
+    </div>
+    
+    <div class="login-container" id="loginContainer">
+        <h2>登录秘密花园</h2>
+        <input type="text" class="login-input" id="username" placeholder="用户名">
+        <input type="password" class="login-input" id="password" placeholder="密码">
+        <button class="login-button" id="loginButton">进入</button>
+        <p class="error-message" id="errorMessage">用户名或密码错误！</p>
+    </div>
+    
+    <div id="questionMarks"></div>
+    
+    <script>
+        // 按钮点击事件
+        document.getElementById('button1').addEventListener('click', showLogin);
+        document.getElementById('button2').addEventListener('click', showLogin);
+        
+        // 输入框获取焦点时切换图片
+        document.getElementById('username').addEventListener('focus', switchImages);
+        document.getElementById('password').addEventListener('focus', switchImages);
+        
+        // 登录按钮点击事件
+        document.getElementById('loginButton').addEventListener('click', checkLogin);
+        
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+        
+        function switchImages() {
+            document.getElementById('right-image').style.display = 'none';
+            document.getElementById('left-image').style.display = 'block';
+        }
+        
+        function checkLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'gerc' && password === '123gerc，') {
+                // 登录成功，跳转到VSCode页面
+                window.location.href = 'vscode.html';
+            } else {
+                // 登录失败，显示错误效果
+                document.body.classList.add('white-bg');
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                
+                // 生成随机问号
+                const questionMarksContainer = document.getElementById('questionMarks');
+                questionMarksContainer.innerHTML = '';
+                
+                const numQuestions = Math.floor(Math.random() * 11) + 10; // 10-20个
+                
+                for (let i = 0; i < numQuestions; i++) {
+                    const questionMark = document.createElement('div');
+                    questionMark.className = 'question-mark';
+                    questionMark.textContent = '?';
+                    questionMark.style.left = Math.random() * 100 + 'vw';
+                    questionMark.style.top = Math.random() * 100 + 'vh';
+                    questionMark.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                    questionMark.style.animationDelay = Math.random() * 3 + 's';
+                    questionMark.style.display = 'block';
+                    questionMarksContainer.appendChild(questionMark);
+                }
+                
+                // 3秒后恢复
+                setTimeout(() => {
+                    document.body.classList.remove('white-bg');
+                    document.getElementById('loginContainer').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    questionMarksContainer.innerHTML = '';
+                    document.getElementById('right-image').style.display = 'block';
+                    document.getElementById('left-image').style.display = 'none';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
