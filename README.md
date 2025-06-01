@@ -1,1 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快用你的小钥匙开门吧</title>
+    <style>
+        /* 若若突然在想，ee会不会在玩游戏的时候翻看代码 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e6f7ff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            position: relative;
+            background-image: url('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E4%BD%A0%E5%A5%BD%E5%91%80.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: opacity 3s ease;
+            backdrop-filter: blur(5px);
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .left-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.5s ease;
+            gap: 20px;
+        }
+        
+        .right-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        
+        .image-container {
+            width: 80%;
+            height: 300px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.5s ease;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button {
+            background: linear-gradient(to bottom, #4a90e2, #3a7bc8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 220px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.4);
+        }
+        
+        .login-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 100;
+            width: 350px;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        
+        .login-container h2 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .login-input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to bottom, #4a90e2, #3a7bc8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .question-mark {
+            position: absolute;
+            font-size: 48px;
+            color: #4a90e2;
+            animation: float 3s infinite ease-in-out;
+            display: none;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(10deg); }
+        }
+        
+        .blue-bg {
+            background-color: #e6f7ff !important;
+        }
+        
+        /* 彩带效果 */
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: -10px;
+            animation: confetti-fall 5s linear forwards;
+            z-index: 5;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+        
+        /* 公主殿下快看快看 */
+        .princess-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            /* 修改背景图片为指定URL */
+            background-image: url('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E6%8D%82%E8%84%B8%EF%BC%88%E5%AE%B3%E7%BE%9E%EF%BC%89.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .princess-content {
+            background-color: rgba(255, 255, 255, 0.85); /* 调整为半透明 */
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        .princess-content h2 {
+            /* 修改为浅蓝色 */
+            color: #6ec1e4;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .princess-content p {
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .princess-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .princess-button {
+            /* 修改为浅蓝色 */
+            background: linear-gradient(to bottom, #6ec1e4, #4a90e2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(110, 193, 228, 0.3);
+        }
+        
+        .princess-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(110, 193, 228, 0.4);
+        }
+        
+        /* 庆祝公主殿下探索完成 */
+        .celebration-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background-color: #ffffff; /* 修改为纯白色背景 */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 300;
+        }
+        
+        .celebration-text {
+            font-size: 48px;
+            color: #ff6b8b;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .celebration-image {
+            max-width: 80%;
+            max-height: 60vh;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            z-index: 10;
+        }
+        
+        /* 这写的是什么，我忘了 */
+        .gift-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 400;
+            background-color: #f8f9fa;
+        }
+        
+        .confirm, .accepted, .rejected {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 72rem;
+            max-width: 90%;
+            min-width: 34rem;
+            max-height: 100%;
+            height: 46rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            margin: auto;
+        }
+        
+        .confirm-body, .accepted-body, .rejected-body {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            position: relative;
+            margin: 2rem 4rem;
+        }
+        
+        .confirm-body-title, .accepted-body-title, .rejected-body-title {
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            transform: translateY(-50%);
+            top: 5%;
+            text-align: center;
+            width: 100%;
+            font-size: 2.4rem;
+        }
+        
+        .confirm-body-subtitle, .accepted-body-subtitle, .rejected-body-subtitle {
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            transform: translateY(-50%);
+            top: 15%;
+            text-align: center;
+            width: 100%;
+            font-size: 1.8rem;
+        }
+        
+        .confirm-body-button, .confirm-body-button:link, .confirm-body-button:visited,
+        .accepted-body-button, .rejected-body-button {
+            color: #fff;
+            border-radius: 1rem;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            margin-bottom: 1rem;
+            min-width: 10rem;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .confirm-body-button-delete {
+            background-color: #a43;
+            order: 2; /* 放在右侧 */
+        }
+        
+        .confirm-body-button-delete:hover {
+            background-color: #c85a48;
+        }
+        
+        .confirm-body-button-cancel {
+            background-color: #6a4;
+            order: 1; /* 放在左侧 */
+        }
+        
+        .confirm-body-button-cancel:hover {
+            background-color: #81c061;
+        }
+        
+        .accepted-body-button, .rejected-body-button {
+            background-color: #6a4;
+        }
+        
+        .accepted-body-button:hover, .rejected-body-button:hover {
+            background-color: #81c061;
+        }
+        
+        .boi {
+            --happiness: 0.9;
+            --derp: 1;
+            --px: 0.5;
+            --py: 0.5;
+            width: 22rem;
+            max-width: 100%;
+            height: 22rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-image: radial-gradient(#f7e0b2, #eb5);
+            border-radius: 100%;
+            overflow: hidden;
+            margin: 0;
+            align-self: center;
+            flex: 0 0 auto;
+            border: solid 2px #ecb23e;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .boi, .boi * {
+            position: absolute;
+        }
+        
+        .boi::before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: linear-gradient(to bottom, #5a8, rgba(85, 170, 136, 0));
+            opacity: calc(1 - var(--happiness));
+        }
+        
+        .boi-blush {
+            width: 20%;
+            height: 10%;
+            background-color: rgba(255, 100, 100, 0.3);
+            border: 3px solid rgba(255, 100, 100, 0.3);
+            top: calc(45% + var(--py) * 10%);
+            border-radius: 100%;
+            opacity: calc(var(--happiness) * var(--happiness) * 0.9 + 0.1);
+        }
+        
+        .boi-blush-left {
+            left: calc(7% + var(--px) * 2%);
+        }
+        
+        .boi-blush-right {
+            right: calc(9% - var(--px) * 2%);
+        }
+        
+        .boi-eye {
+            width: calc(26% - var(--happiness) * 2%);
+            height: calc(26% - var(--happiness) * 2%);
+            background-color: #f6f6f6;
+            border-radius: 100%;
+            top: calc(25% + var(--py) * 10%);
+            overflow: hidden;
+        }
+        
+        .boi-eye-left {
+            left: calc(18% + var(--px) * 4%);
+        }
+        
+        .boi-eye-left::after {
+            transform: translate(calc((var(--px) + var(--derp) * 0.5) * 100%), calc((var(--py) + var(--derp) * 0.5) * 100%));
+        }
+        
+        .boi-eye-right {
+            right: calc(22% - var(--px) * 4%);
+        }
+        
+        .boi-eye-right::after {
+            transform: translate(calc((var(--px) + var(--derp) * -0.3) * 100%), calc((var(--py) + var(--derp) * -0.3) * 100%));
+        }
+        
+        .boi-eye::after {
+            content: '';
+            display: block;
+            background-color: #421;
+            width: calc(55% - var(--happiness) * 10%);
+            height: calc(55% - var(--happiness) * 10%);
+            border-radius: 100%;
+        }
+        
+        .boi-mouth {
+            width: calc(51% - var(--happiness) * 2%);
+            height: calc(26% - var(--happiness) * 2%);
+            background-color: #a33;
+            border-radius: calc((1 - var(--happiness)) * 10em) calc((1 - var(--happiness)) * 10em) calc(var(--happiness) * 16em) calc(var(--happiness) * 16em);
+            top: calc(57.5% + var(--py) * 5%);
+            left: calc(47.5% + var(--px) * 5%);
+            transform: translateX(-50%);
+            overflow: hidden;
+            border: 3px solid #962d2d;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+        
+        .boi-mouth::before {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 20%;
+            height: 20%;
+            top: 0;
+            left: 50%;
+            background-color: white;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        
+        .boi-mouth::after {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 60%;
+            height: 50%;
+            left: 10%;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 20rem 20rem 0 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 2rem;
+            margin-top: 2rem;
+        }
+        
+        .what-button {
+            background: linear-gradient(to bottom, #4a90e2, #3a7bc8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+        }
+        
+        .what-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- 主页面 -->
+    <div class="container">
+        <div class="left-section">
+            <button class="button" id="button1">不要点我（捂脸）</button>
+            <button class="button" id="button2">咦？这是哪</button>
+        </div>
+        
+        <div class="right-section">
+            <div class="image-container" id="main-image"></div>
+        </div>
+    </div>
+    
+    <!-- 登录框 -->
+    <div class="login-container" id="loginContainer">
+        <h2>PLAY：逮住若若</h2>
+        <input type="text" class="login-input" id="username" placeholder="用户名">
+        <input type="password" class="login-input" id="password" placeholder="密码">
+        <button class="login-button" id="loginButton">开始我的游戏</button>
+        <p class="error-message" id="errorMessage">用户名或密码错误！</p>
+    </div>
+    
+    <!-- 错误显示区域 -->
+    <div id="questionMarks"></div>
+    
+    <!-- 公主殿下页面 -->
+    <div class="princess-container" id="princessPage">
+        <div class="princess-content">
+            <h2>哎呀呀，被公主殿下看到我了⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄</h2>
+            <p>Dear Sister，你已经抓住了若若的小尾巴，现在快踮起脚尖，踩着铺满星尘的蘑菇小径悄悄向前…✨嘘——别让若若发现，快完成游戏并领取奖励吧~</p>
+            <p>公主殿下请继续探索，记得带走属于你的🌙 月亮糖罐 呦～</p>
+            <button class="princess-button" id="princessButton">探索</button>
+        </div>
+    </div>
+    
+    <!-- 庆祝页面 -->
+    <div class="celebration-container" id="celebrationPage">
+        <div class="celebration-text">恭喜你探索完成！我们拉钩，下次再战！</div>
+        <img src="https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E6%8E%A2%E7%B4%A2%E5%AE%8C%E6%88%90%EF%BC%8C%E6%AC%A2%E8%BF%8E%E5%86%8D%E6%9D%A5.png" alt="庆祝图片" class="celebration-image">
+    </div>
+    
+    <!-- 礼物确认页面 -->
+    <div class="gift-container" id="giftPage">
+        <section class="confirm">
+            <div class="confirm-body">
+                <h2 class="confirm-body-title">o！糟糕，我好像不小心买了样东西，并且公主殿下大概率喜欢</h2>
+                <h3 class="confirm-body-subtitle">天使姐姐可不可以成全他，接受若若的魔法礼盒🎁？</h3>
+                <figure class="boi" style="--happiness:0.9; --derp:1; --px:0.5; --py:0.5;">
+                    <div class="boi-blush boi-blush-left"></div>
+                    <div class="boi-blush boi-blush-right"></div>
+                    <div class="boi-eye boi-eye-left"></div>
+                    <div class="boi-eye boi-eye-right"></div>
+                    <div class="boi-mouth"></div>
+                </figure>
+                <div class="button-container">
+                    <a class="confirm-body-button confirm-body-button-cancel" href="javascript:void(0)">接受</a>
+                    <a class="confirm-body-button confirm-body-button-delete" href="javascript:void(0)">拒绝</a>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- 接受后的页面 -->
+    <div class="gift-container" id="acceptedPage">
+        <section class="accepted">
+            <div class="accepted-body">
+                <h3 class="accepted-body-subtitle">若若非常开心，非常感谢你！</h3>
+                <figure class="boi" style="--happiness:1; --derp:0; --px:0.5; --py:0.5;">
+                    <div class="boi-blush boi-blush-left"></div>
+                    <div class="boi-blush boi-blush-right"></div>
+                    <div class="boi-eye boi-eye-left"></div>
+                    <div class="boi-eye boi-eye-right"></div>
+                    <div class="boi-mouth"></div>
+                </figure>
+                <div class="button-container">
+                    <a class="accepted-body-button" href="javascript:void(0)">返回</a>
+                    <button class="what-button">这是？</button>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- 拒绝后的页面 -->
+    <div class="gift-container" id="rejectedPage">
+        <section class="rejected">
+            <div class="rejected-body">
+                <h2 class="rejected-body-title">若若有点难过...</h2>
+                <h3 class="rejected-body-subtitle">但若若尊重你的决定，祝你开心！</h3>
+                <figure class="boi" style="--happiness:0.2; --derp:0; --px:0.5; --py:0.5;">
+                    <div class="boi-blush boi-blush-left"></div>
+                    <div class="boi-blush boi-blush-right"></div>
+                    <div class="boi-eye boi-eye-left"></div>
+                    <div class="boi-eye boi-eye-right"></div>
+                    <div class="boi-mouth"></div>
+                </figure>
+                <div class="button-container">
+                    <a class="rejected-body-button" href="javascript:void(0)">返回</a>
+                    <button class="what-button">这是？</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 设置初始图片
+        const mainImage = document.getElementById('main-image');
+        mainImage.style.backgroundImage = "url('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E4%BD%A0%E5%A5%BD%E5%91%80.jpg')";
+        
+        // 按钮点击事件
+        document.getElementById('button1').addEventListener('click', fadeOutContent);
+        document.getElementById('button2').addEventListener('click', fadeOutContent);
+        
+        // 输入框获取焦点时切换图片
+        document.getElementById('username').addEventListener('focus', () => switchImages('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E6%8D%83%E7%9C%BC%EF%BC%88%E4%B8%8D%E5%87%86%E5%81%B7%E7%9C%8B%EF%BC%89.jpg'));
+        document.getElementById('password').addEventListener('focus', () => switchImages('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E6%8D%83%E7%9C%BC%EF%BC%88%E4%B8%8D%E5%87%86%E5%81%B7%E7%9C%8B%EF%BC%89.jpg'));
+        
+        // 登录按钮点击事件
+        document.getElementById('loginButton').addEventListener('click', checkLogin);
+        
+        // 公主页面按钮点击事件
+        document.getElementById('princessButton').addEventListener('click', showGiftPage);
+        
+        // 淡出内容显示登录框
+        function fadeOutContent() {
+            document.querySelector('.container').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.querySelector('.container').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'block';
+                
+                // 设置登录页面背景
+                document.body.style.backgroundImage = "url('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E4%BD%A0%E5%A5%BD%E5%91%80.jpg')";
+            }, 1000);
+        }
+        
+        // 切换图片
+        function switchImages(imageUrl) {
+            mainImage.style.backgroundImage = `url('${imageUrl}')`;
+        }
+        
+        // 检查登录
+        function checkLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'gerc' && password === '123gerc') {
+                // 登录成功，跳转到公主页面
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('princessPage').style.display = 'flex';
+            } else {
+                // 登录失败，显示错误效果
+                document.body.classList.add('blue-bg');
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                
+                // 生成随机问号
+                const questionMarksContainer = document.getElementById('questionMarks');
+                questionMarksContainer.innerHTML = '';
+                
+                const numQuestions = Math.floor(Math.random() * 501) + 21; // 21-521个蓝色问号
+                
+                for (let i = 0; i < numQuestions; i++) {
+                    const questionMark = document.createElement('div');
+                    questionMark.className = 'question-mark';
+                    questionMark.textContent = '?';
+                    questionMark.style.left = Math.random() * 100 + 'vw';
+                    questionMark.style.top = Math.random() * 100 + 'vh';
+                    questionMark.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                    questionMark.style.animationDelay = Math.random() * 3 + 's';
+                    questionMark.style.display = 'block';
+                    questionMarksContainer.appendChild(questionMark);
+                }
+                
+                // 3秒后恢复
+                setTimeout(() => {
+                    document.body.classList.remove('blue-bg');
+                    document.getElementById('loginContainer').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    questionMarksContainer.innerHTML = '';
+                    mainImage.style.backgroundImage = "url('https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E4%BD%A0%E5%A5%BD%E5%91%80.jpg')";
+                }, 3000);
+            }
+        }
+        
+        // 显示礼物页面
+        function showGiftPage() {
+            document.getElementById('princessPage').style.display = 'none';
+            document.getElementById('giftPage').style.display = 'flex';
+            
+            // 初始化礼物页面
+            initGiftPage();
+        }
+        
+        // 初始化礼物页面
+        function initGiftPage() {
+            const confirmSection = document.querySelector('.confirm');
+            const acceptedSection = document.querySelector('.accepted');
+            const rejectedSection = document.querySelector('.rejected');
+            const boi = document.querySelector('.boi');
+            const btnDelete = document.querySelector('.confirm-body-button-delete');
+            const btnCancel = document.querySelector('.confirm-body-button-cancel');
+            const btnAcceptReturn = document.querySelector('.accepted-body-button');
+            const btnRejectReturn = document.querySelector('.rejected-body-button');
+            
+            const current = {
+                happiness: 0.9,
+                derp: 1,
+                px: 0.5,
+                py: 0.5
+            };
+            const target = { ...current };
+            let rejectCount = 0;
+            
+            // 事件监听
+            confirmSection.addEventListener('mousemove', onMouseMove);
+            confirmSection.addEventListener('mouseleave', onMouseLeave);
+            
+            btnCancel.addEventListener('click', () => {
+                document.getElementById('giftPage').style.display = 'none';
+                document.getElementById('acceptedPage').style.display = 'flex';
+                target.happiness = 1;
+                updateBoi();
+            });
+            
+            btnDelete.addEventListener('click', () => {
+                rejectCount++;
+                // 移除按钮放大效果
+                // btnCancel.style.transform = `scale(${1 + rejectCount * 0.1})`; // 注释掉这行
+                target.happiness = Math.max(0.1, target.happiness - 0.1);
+                updateBoi();
+                
+                // 立即跳转到拒绝页面（移除setTimeout）
+                document.getElementById('giftPage').style.display = 'none';
+                document.getElementById('rejectedPage').style.display = 'flex';
+            });
+            
+            btnAcceptReturn.addEventListener('click', () => {
+                document.getElementById('acceptedPage').style.display = 'none';
+                document.getElementById('giftPage').style.display = 'flex';
+                resetBoi();
+            });
+            
+            btnRejectReturn.addEventListener('click', () => {
+                document.getElementById('rejectedPage').style.display = 'none';
+                document.getElementById('giftPage').style.display = 'flex';
+                resetBoi();
+            });
+            
+            // 为"这是？"按钮添加事件
+            document.querySelectorAll('.what-button').forEach(button => {
+                button.addEventListener('click', showCelebration);
+            });
+            
+            function onMouseMove({ clientX: x, clientY: y }) {
+                let dx1 = x - btnDelete.getBoundingClientRect().x - btnDelete.getBoundingClientRect().width * 0.5;
+                let dy1 = y - btnDelete.getBoundingClientRect().y - btnDelete.getBoundingClientRect().height * 0.5;
+                let dx2 = x - btnCancel.getBoundingClientRect().x - btnCancel.getBoundingClientRect().width * 0.5;
+                let dy2 = y - btnCancel.getBoundingClientRect().y - btnCancel.getBoundingClientRect().height * 0.5;
+                let px = (x - confirmSection.getBoundingClientRect().x) / confirmSection.getBoundingClientRect().width;
+                let py = (y - confirmSection.getBoundingClientRect().y) / confirmSection.getBoundingClientRect().height;
+                let distDelete = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+                let distCancel = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                let happiness = Math.pow(distDelete / (distCancel + distDelete), 0.75);
+                
+                target.happiness = happiness;
+                target.derp = 0;
+                target.px = px;
+                target.py = py;
+            }
+            
+            function onMouseLeave() {
+                target.happiness = 0.9;
+                target.derp = 1;
+                target.px = 0.5;
+                target.py = 0.5;
+            }
+            
+            function updateBoi() {
+                for (let prop in target) {
+                    if (target[prop] === current[prop]) {
+                        continue;
+                    } else if (Math.abs(target[prop] - current[prop]) < 0.01) {
+                        current[prop] = target[prop];
+                    } else {
+                        current[prop] += (target[prop] - current[prop]) * 0.1;
+                    }
+                    boi.style.setProperty(`--${prop}`, current[prop]);
+                }
+                requestAnimationFrame(updateBoi);
+            }
+            
+            function resetBoi() {
+                target.happiness = 0.9;
+                target.derp = 1;
+                target.px = 0.5;
+                target.py = 0.5;
+                rejectCount = 0;
+                btnCancel.style.transform = 'scale(1)';
+                btnDelete.style.position = 'static';
+            }
+            
+            updateBoi();
+        }
+        
+        // 显示庆祝页面
+        function showCelebration() {
+            // 记录当前页面（接受或拒绝页面）
+            const fromAcceptedPage = document.getElementById('acceptedPage').style.display === 'flex';
+            const fromRejectedPage = document.getElementById('rejectedPage').style.display === 'flex';
+            
+            // 设置新的庆祝图片
+            document.querySelector('.celebration-image').src = 'https://raw.githubusercontent.com/gerc622/gerc622.github.io/main/%E6%8E%A2%E7%B4%A2%E5%AE%8C%E6%88%90%EF%BC%8C%E6%AC%A2%E8%BF%8E%E5%86%8D%E6%9D%A5.png';
+            
+            // 隐藏当前页面
+            document.getElementById('acceptedPage').style.display = 'none';
+            document.getElementById('rejectedPage').style.display = 'none';
+            
+            // 显示庆祝页面
+            document.getElementById('celebrationPage').style.display = 'flex';
+            
+            // 创建彩带效果
+            createConfetti(fromAcceptedPage, fromRejectedPage);
+        }
+        
+        // 创建彩带
+        function createConfetti(fromAcceptedPage, fromRejectedPage) {
+            const colors = ['#ff6b8b', '#4a90e2', '#ffbd2e', '#27c93f', '#ff85a2', '#569cd6'];
+            const container = document.getElementById('celebrationPage');
+            
+            for (let i = 0; i < 250; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 15 + 5 + 'px';
+                confetti.style.height = Math.random() * 15 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(confetti);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.remove();
+                    }
+                }, 5000);
+            }
+            
+            // 5秒后回到原来的页面
+            setTimeout(() => {
+                document.getElementById('celebrationPage').style.display = 'none';
+                if (fromAcceptedPage) {
+                    document.getElementById('acceptedPage').style.display = 'flex';
+                } else if (fromRejectedPage) {
+                    document.getElementById('rejectedPage').style.display = 'flex';
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
 
